@@ -52,6 +52,21 @@ if (verifyMsg && justVerified === "true") {
     }, 3000);
 }
 
+// PAGE PROTECTION
+const path = window.location.pathname;
+const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
+const loggedIn = sessionStorage.getItem("loggedIn");
+
+// Protect admin pages
+if (path.includes("/admin/")) {
+    if (!loggedIn || !currentUser) {
+        window.location.href = "../login.html";
+    } else if (currentUser.role !== "admin") {
+        alert("Access denied!");
+        window.location.href = "../index.html";
+    }
+}
+
 // LOGIN
 const loginForm = document.querySelector(".login-card");
 
@@ -80,14 +95,24 @@ if (loginForm) {
         }
 
         sessionStorage.setItem("loggedIn", "true");
+        sessionStorage.setItem("currentUser", JSON.stringify(user));
 
-        // ✅ FIXED MESSAGE
-
-        // REDIRECT BASED ON ROLE
+        // ✅ FIXED
         if (user.role === "admin") {
             window.location.href = "admin/admin.html";
         } else {
             window.location.href = "index.html";
         }
     });
+}
+
+// PROFILE DISPLAY
+if (currentUser) {
+    const emailEl = document.getElementById("emailDisplay");
+    const roleEl = document.getElementById("roleDisplay");
+
+    if (emailEl && roleEl) {
+        emailEl.textContent = currentUser.email;
+        roleEl.textContent = currentUser.role;
+    }
 }
